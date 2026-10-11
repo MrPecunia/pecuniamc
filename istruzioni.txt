@@ -1,0 +1,45 @@
+You are running directly in the project root folder (1.8.9/cloudclient). Execute all tasks directly on disk by modifying files, cloning external repositories if necessary, and creating new Java/Mixin classes under src/main/java/.
+
+Act as an Expert Java Developer, Senior Minecraft Forge 1.8.9 Modder, and Client Architect.
+Your task is to build and integrate the codebase for "PecuniaMC", an ultimate custom PvP Client for Forge 1.8.9.
+
+PROJECT SPECIFICATIONS & REQUIRED REPOSITORIES:
+- Base Architecture: Existing repository (CloudClient Forge 1.8.9 with SpongePowered Mixins setup).
+- Cheat Client Integration: Arsenic (https://github.com/ArsenicClient/Arsenic).
+- Mod 1: ChatTriggers (https://github.com/ChatTriggers/ChatTriggers).
+- Mod 2: RankSpoof / CustomRankUpdated (https://github.com/cxntered/RankSpoof - port core logic from legacy/ornithe branch to Forge 1.8.9).
+- Mod 3: MinecraftCapes (https://github.com/MinecraftCapes/minecraftcapes-mod - forge-1.8.9 branch).
+
+FEATURE REQUIREMENTS & INSTRUCTIONS:
+
+1. OPTIFINE & 1.7 ANIMATIONS (Mixins):
+- Ensure compatibility with OptiFine 1.8.9 (loaded as an external library).
+- Implement a "1.7 Animations" module using Mixins targeting `ItemRenderer` and `EntityPlayerSP` to restore 1.7 block-hitting, eating, and drinking animations without crashing when OptiFine modifies rendering pipelines.
+
+2. GUI, UX & MENU (Lunar Client Style):
+- Custom Splash Screen: Override default Forge loading screen to display "PecuniaMC is loading..." (Hide default Forge mod loading text).
+- Custom Main Menu: Create a `GuiMainMenu` replacement with a modern, flat, Lunar-Client style design.
+- Info Button: Add an "Info" button on the Main Menu showing basic client details (strictly hide any cheat/danger mode mention).
+
+3. "DANGER MODE" (Arsenic Integration & Bug Fixes):
+- Implement a STRICTLY HIDDEN boolean toggle (`isDangerModeEnabled`) in the client core.
+- If Danger Mode is OFF: Arsenic modules are completely unregistered, hidden, and inactive.
+- If Danger Mode is ON: Inject Arsenic's categories seamlessly into the ClickGUI.
+- ARSENIC UI BUG FIX: Arsenic normally renders a "Killaura" toggle directly inside the vanilla player inventory (`GuiInventory`). Write a Mixin/Event hook to forcibly DISABLE/REMOVE this specific Arsenic rendering element from the inventory screen.
+
+4. "PECUNIA NETWORK" (WebSocket for Ranks, Nicks & Capes):
+- MinecraftCapes Mod: Initialize it natively so capes work out of the box via their API.
+- Rank & Nick Spoofing: Port RankSpoof/CustomRankUpdated logic to Forge 1.8.9.
+- WEBSOCKET CLIENT: Implement a Java WebSocket client (using `Java-WebSocket` library) connecting to `wss://pecuniaserver.onrender.com`.
+- Send JSON payload `{"type": "update_profile", "uuid": "player_uuid", "rank": "[Sus] ", "nick": "Notch"}` when rank/nick changes.
+- Listen for incoming JSON broadcasts to update a local `Map<UUID, SpoofedProfile>`.
+- VISUAL OVERRIDES: Write Mixins to replace player's rank and name based on `SpoofedProfile` in:
+  a) Chat (`GuiNewChat` / `ClientChatReceivedEvent`).
+  b) Tablist (`NetworkPlayerInfo` Mixin, overriding `getDisplayName()`).
+  c) Nametags (`RenderPlayer` / `RendererLivingEntity` Mixin).
+
+ACTIONS TO PERFORM:
+1. Update `build.gradle` directly on disk to add necessary dependencies (`org.java-websocket:Java-WebSocket:1.5.3`, Mixins, etc.).
+2. Clone external repositories listed above if needed into a temporary folder to port/integrate code, then clean up.
+3. Write all new Java classes and Mixins directly into `src/main/java/` and configure `mixins.pecuniamc.json`.
+4. Ensure the codebase is clean, well-structured, and ready to be compiled with `./gradlew build`.

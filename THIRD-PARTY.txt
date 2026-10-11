@@ -1,0 +1,29 @@
+THIRD-PARTY COMPONENTS AND LICENSES (PecuniaMC)
+=================================================
+
+PecuniaMC bundles the following third-party works. Their original copyright
+notices and license headers are preserved in the source files, and the full
+license texts ship in the licenses/ folder of this repository.
+
+1. FrostClient / CloudClient (base architecture, HUD mods, menus, mixins)
+   - Copyright (c) 2022 DupliCAT / QuiteFrosty and contributors
+   - License: GNU Lesser General Public License v3.0 (LGPL-3.0)
+   - Full text: licenses/LGPL-3.0.txt
+   - What it requires, in short: keep the copyright/license headers intact
+     (done), keep a copy of the license with distributions (this folder),
+     and state changes where the library is modified.
+
+2. Arsenic Client v2.0, embedded (Danger Mode modules)
+   - Copyright (c) 2022 Arsenic Client Development
+   - License: MIT License (permissive)
+   - Full text: licenses/MIT-Arsenic.txt
+   - What it requires, in short: keep the copyright notice and the permission
+     notice with distributions (done: this file plus the mcmod credits entry).
+
+PecuniaMC's own original code (dev.pecuniamc.*, Luna-style menus, network
+and content features) is licensed under the GNU General Public License v3.0
+(GPL-3.0, the least permissive option for forks: modified versions must stay
+open-source under the same terms). Full text: LICENSE (repository root).
+Copyright holders: PrPecunia (repository owner), Webget, Diamond Gaming,
+Eris Group, Pecunia Enterprise. GPL-3.0 also covers the combined work, which
+is compatible with both LGPL-3.0 and MIT components above.

@@ -1,0 +1,142 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = "forge"
+            url = "https://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = 'sponge'
+            url = 'https://repo.spongepowered.org/maven'
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
+    }
+}
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'org.spongepowered.mixin'
+
+compileJava {
+    sourceCompatibility = targetCompatibility = '1.8'
+    options.encoding = 'UTF-8'
+}
+
+version = "1.0.0"
+group = "dev.frostclient"
+archivesBaseName = "pecuniamc"
+
+minecraft {
+    version = "1.8.9-11.15.1.2318-1.8.9"
+    runDir = "run"
+    mappings = "stable_22"
+}
+
+mixin {
+    defaultObfuscationEnv = "searge"
+    // Single shared refmap: mixingradle keeps one refmap per sourceSet, and the
+    // generated file contains mappings for every mixin class (dev.frostclient
+    // and dev.pecuniamc alike). Both JSON configs point at this same file.
+    add sourceSets.main, "mixins.pecuniamc.refmap.json"
+}
+
+configurations {
+    embed
+    compile.extendsFrom(embed)
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'sponge'
+        url = 'https://repo.spongepowered.org/maven/'
+    }
+}
+
+dependencies {
+    embed('org.spongepowered:mixin:0.7.11-SNAPSHOT')
+    // embed (shaded into the jar): needed at runtime on player clients
+    embed('org.java-websocket:Java-WebSocket:1.5.3') {
+        // slf4j-api is already embedded inside the Arsenic jar; excluding it
+        // here avoids duplicate entries that break :reobfJar
+        exclude group: 'org.slf4j'
+    }
+    // Embedded Arsenic cheat client (filtered copy, see stripArsenic below).
+    // Compile-visible too via compile.extendsFrom(embed).
+    embed files("$buildDir/arsenic/arsenic-core.jar") { builtBy 'stripArsenic' }
+    // gson ships with vanilla MC 1.8.9, compile-only is enough
+    compile('com.google.code.gson:gson:2.8.9')
+    // Annotations used by Arsenic sources (CLASS retention, not needed at runtime)
+    compileOnly 'org.jetbrains:annotations:23.0.0'
+}
+
+/**
+ * Strips the prebuilt Arsenic jar down to what can safely live inside our jar:
+ * - drops Mixin 0.6.12 (org/spongepowered/**) to avoid collisions with our
+ *   Mixin 0.7.11 (Arsenic's mixins run fine on 0.7.11),
+ * - drops META-INF (their manifest/FMLCorePlugin entries must not override
+ *   ours; their MixinLoader coremod is superseded by our MixinTweaker, which
+ *   loads mixins.arsenic.json from the merged MixinConfigs below),
+ * - drops their mcmod.info (ours wins).
+ * Kept: arsenic/** classes, assets, mixins.arsenic.json + its refmap.
+ */
+task stripArsenic(type: Zip) {
+    from(zipTree('vendor/arsenic.jar')) {
+        exclude 'org/spongepowered/**'
+        exclude 'META-INF/**'
+        exclude 'mcmod.info'
+        // Our source-built arsenic.main.Arsenic replaces the binary one: same
+        // @Mod, but with @Mod.Instance("arsenic") so FML no longer cross-wires
+        // the two unscoped @Instance fields of the two mods in this jar.
+        exclude 'arsenic/main/Arsenic.class'
+        // Vendored PecuniaMC versions (danger-gated visuals, no splash hijack,
+        // rebranded watermark) replace these binary classes.
+        exclude 'arsenic/runtime/hooks/GuiHooks*.class'
+        exclude 'arsenic/runtime/hooks/MinecraftHooks*.class'
+        exclude 'arsenic/module/impl/visual/HUD*.class'
+        exclude 'arsenic/module/impl/world/BridgeAssist*.class'
+        exclude 'arsenic/module/impl/blatant/KillAura*.class'
+        exclude 'arsenic/utils/render/TargetFx*.class'
+        exclude 'arsenic/utils/rotations/AimController*.class'
+        exclude 'arsenic/utils/click/ClickManager*.class'
+        exclude 'arsenic/utils/render/RenderUtils*.class'
+        exclude 'arsenic/utils/aimcore/AimCore*.class'
+        exclude 'arsenic/utils/click/ClickPattern*.class'
+        exclude 'arsenic/utils/render/shader/ShaderUtil*.class'
+        exclude 'arsenic/injection/mixin/MixinSplashProgress.class'
+        exclude 'arsenic/injection/mixin/MixinGuiChat*.class'
+        exclude 'arsenic/utils/minecraft/PlayerUtils*.class'
+        // Rebranded PecuniaMC logos ship from our own resources instead.
+        exclude 'assets/arsenic/logos/classic.png'
+        exclude 'assets/arsenic/logos/modern.png'
+    }
+    destinationDir = file("$buildDir/arsenic")
+    archiveName = 'arsenic-core.jar'
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+jar {
+    dependsOn configurations.embed
+    from(configurations.embed.collect { it.isDirectory() ? it : zipTree(it) })
+
+    manifest.attributes (
+            "MixinConfigs": "mixins.frostclient.json,mixins.pecuniamc.json,mixins.arsenic.json",
+            "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
+            'FMLCorePluginContainsFMLMod': true,
+            "ForceLoadAsMod": true
+    )
+}

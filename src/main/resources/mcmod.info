@@ -1,0 +1,16 @@
+[
+{
+  "modid": "pecuniamc",
+  "name": "PecuniaMC",
+  "description": "PecuniaMC is the ultimate, 100% free and open-source Minecraft PvP client for version 1.8.9. Developed by MrPecunia, it is fully optimized to deliver a massive FPS boost and seamless gameplay performance, with 1.7 animations and Lunar-style menus. It syncs custom ranks, nicknames and capes between PecuniaMC players over the Pecunia Network, includes content commands (/ban, /gamemode) and optional modules. Type /pmc help in game for the full command list. Zero telemetry or tracking.",
+  "version": "1.0.0",
+  "mcversion": "1.8.9",
+  "url": "https://github.com/MrPecunia",
+  "updateUrl": "",
+  "authorList": ["PrPecunia", "Webget", "Diamond Gaming", "Eris Group", "Pecunia Enterprise"],
+  "credits": "MrPecunia (dev) - https://github.com/MrPecunia. Built on CloudClient by DupliCAT / FrostClient by QuiteFrosty.",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

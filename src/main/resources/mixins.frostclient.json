@@ -1,0 +1,27 @@
+{
+  "required": true,
+  "minVersion": "0.7",
+  "package": "dev.frostclient.mixins",
+  "refmap": "mixins.pecuniamc.refmap.json",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "DangerChatMixin",
+    "EntityFXMixin",
+    "EntityRendererMixin",
+    "FontRendererMixin",
+    "GuiIngameMenuMixin",
+    "GuiInGameMixin",
+    "GuiMainMenuMixin",
+    "GuiScreenMixin",
+    "ItemRendererMixin",
+    "MinecraftMixin",
+    "ModelBipedMixin",
+    "RendererLivingEntityMixin",
+    "RenderMixin"
+  ],
+  "mixins": [
+    "GuiUtilsMixin",
+    "InventoryPlayerMixin",
+    "WorldMixin"
+  ]
+}

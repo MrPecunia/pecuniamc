@@ -1,0 +1,22 @@
+# Gradle / ForgeGradle build outputs
+.gradle/
+build/
+out/
+run/
+
+# JVM crash dumps
+*.hprof
+
+# IDE
+.idea/
+*.iml
+eclipse/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local reference material (not part of the build)
+/Arsenic-main/
+/CustomRank/
